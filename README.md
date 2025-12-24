@@ -41,6 +41,12 @@
 
 ---
 
+Конфигурационный файл **terraform** для работы с Yandex Cloud, который расположен с домашней директории
+
+[.terraformrc](conf_file/.terraformrc)
+
+---
+
 ## Задание 1 
 
 Возьмите за основу [решение к заданию 1 из занятия «Подъём инфраструктуры в Яндекс Облаке»](https://github.com/netology-code/sdvps-homeworks/blob/main/7-03.md#задание-1).
@@ -82,6 +88,24 @@
 
 ## Вариант 1
 
+````
+~/
+...
+├── .authorized_key.json
+├── .ssh/
+│   ...
+│   ├── ssh-key-1759501063847
+│   └── ssh-key-1759501063847.pub
+├── .terraformrc
+├── terraform/ 
+│   ├── cloud-init.yml
+│   ├── main.tf
+│   ├── network.tf
+│   ├── providers.tf
+│   └── variables.tf
+...
+````
+
 [cloud-init.yml](task_1/variant_1/cloud-init.yml)
 
 [main.tf](task_1/variant_1/main.tf)
@@ -97,6 +121,25 @@
 ![](pic/PIC002.PNG)
 
 ## Вариант 2
+
+````
+~/
+...
+├── .authorized_key.json
+├── .ssh/
+│   ...
+│   ├── ssh-key-1759501063847
+│   └── ssh-key-1759501063847.pub
+├── .terraformrc
+├── terraform/ 
+│   ├── cloud-init.yml
+│   ├── main.tf
+│   ├── network.tf
+│   ├── playbook.yml
+│   ├── providers.tf
+│   └── variables.tf
+...
+````
 
 При запуске **terraform** буден создан файл **inventory.ini** для работы с **ansible**.
 
@@ -124,6 +167,25 @@ ansible-playbook -i inventory.ini playbook.yml
 
 ## Вариант 3
 
+````
+~/
+...
+├── .authorized_key.json
+├── .ssh/
+│   ...
+│   ├── ssh-key-1759501063847
+│   └── ssh-key-1759501063847.pub
+├── .terraformrc
+├── terraform/ 
+│   ├── cloud-init.tftpl
+│   ├── main.tf
+│   ├── network.tf
+│   ├── playbook.yml
+│   ├── providers.tf
+│   └── variables.tf
+...
+````
+
 Для того, чтобы SSH порт можно было менять только в одном файле (**variables.tf**), вместо **cloud-init.yml** нужно использовать шаблон **cloud-init.tftpl**, т.к. **cloud-init.yml** не умеет обращаться к переменным **Terraform**.
 
 [cloud-init.tftpl](task_1/variant_3/cloud-init.tftpl)
@@ -139,6 +201,45 @@ ansible-playbook -i inventory.ini playbook.yml
 [variables.tf](task_1/variant_3/variables.tf)
 
 И терперь для подключения к ВМ нужно указать порт. Для удобства будет создан файл README.txt в котором будут указаны команды.
+
+После ``terraform apply`` схема будет следующая:
+
+````
+~/
+...
+├── .authorized_key.json
+├── .ssh/
+│   ...
+│   ├── ssh-key-1759501063847
+│   └── ssh-key-1759501063847.pub
+├── .terraformrc
+├── terraform/ 
+│   ├── cloud-init.tftpl
+│   ├── inventory.ini
+│   ├── main.tf
+│   ├── network.tf
+│   ├── playbook.yml
+│   ├── providers.tf
+│   ├── README.txt
+│   └── variables.tf
+...
+````
+
+## Вариант 4
+
+Применение BASTION с нестандартными портами. Подключение к рабочим машинам возможно через BASTION, что повышает безопасность. Из неудобств: создание самого BASTIONа и если с ним что-либо случится, то доступ будет затруднён.
+
+[cloud-init.tftpl](task_1/variant_4/cloud-init.tftpl)
+
+[main.tf](task_1/variant_4/main.tf)
+
+[network.tf](task_1/variant_4/network.tf)
+
+[playbook.yml](task_1/variant_4/playbook.yml)
+
+[providers.tf](task_1/variant_4/providers.tf)
+
+[variables.tf](task_1/variant_4/variables.tf)
 
 ---
 
