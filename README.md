@@ -35,6 +35,12 @@
 
  ---
 
+### Подробное решение домашнегго задания
+
+[Ссылка на GoogleDoc](https://docs.google.com/document/d/1M-vfLYmc4IbBGAK4yXH7ZbmFJZ2ULGrdICem1oTx8-g/edit?usp=drive_link)
+
+---
+
 ## Задание 1 
 
 Возьмите за основу [решение к заданию 1 из занятия «Подъём инфраструктуры в Яндекс Облаке»](https://github.com/netology-code/sdvps-homeworks/blob/main/7-03.md#задание-1).
@@ -75,9 +81,6 @@
 3. используя нестандартный **порт** для подключения по **SSH**
 
 ## Вариант 1
-
-````
-````
 
 [cloud-init.yml](task_1/variant_1/cloud-init.yml)
 
