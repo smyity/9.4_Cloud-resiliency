@@ -1,0 +1,103 @@
+# ОС Ubuntu 22.04 LTS
+data "yandex_compute_image" "ubuntu_2204_lts" {
+  family = "ubuntu-2204-lts"
+}
+
+resource "yandex_compute_instance" "ubuntu_workstation" {
+  # количество идентичных машин
+  count       = length(var.vm_name)
+  
+  name        = var.vm_name[count.index]
+  hostname    = var.vm_name[count.index]
+  platform_id = "standard-v3"
+  zone        = "ru-central1-a"
+
+  resources {
+    cores         = 2
+    memory        = 2
+    core_fraction = 20
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = data.yandex_compute_image.ubuntu_2204_lts.image_id
+      type     = "network-hdd"
+      size     = 10
+    }
+  }
+
+  metadata = {
+    user-data = "${file("./cloud-init.yml")}"
+
+    serial-port-enable = 1
+  }
+
+  scheduling_policy { preemptible = true }
+
+  network_interface {
+    subnet_id          = yandex_vpc_subnet.block_1.id
+    nat                = true
+  }
+
+  provisioner "remote-exec" {
+    connection {
+      type        = "ssh"
+      user        = "osho"
+      private_key = file("~/.ssh/ssh-key-1759501063847")
+      host        = self.network_interface.0.nat_ip_address
+      timeout     = "2m"
+    }
+    
+    inline = [
+      "sudo apt update",
+      "sudo apt install nginx -y",
+    ]
+  }
+}
+
+# целевая группа
+resource "yandex_lb_target_group" "tg01" {
+  name      = "target-group-01"
+  region_id = "ru-central1"
+
+  # Динамический блок перебирает все созданные ВМ и добавляет их в группу
+  dynamic "target" {
+
+    for_each = yandex_compute_instance.ubuntu_workstation
+    
+      content {
+        subnet_id = target.value.network_interface.0.subnet_id
+        address   = target.value.network_interface.0.ip_address
+      }
+    }
+}
+
+# сетевой балансировщик
+resource "yandex_lb_network_load_balancer" "web-lb" {
+  name = "web-network-load-balancer"
+
+  # Настройка входа (слушателя)
+  listener {
+    name        = "http-listener"
+    port        = 80   # порт, который слушает балансировщик
+    target_port = 80   # порт на самой виртуальной машине
+  }
+
+  # привязка целевой группы к балансировщику
+  attached_target_group {
+    target_group_id = yandex_lb_target_group.tg01.id
+
+    # проверка состояния ВМ
+    healthcheck {
+      name = "http-check"
+      http_options {
+        port = 80
+        path = "/" # Путь для проверки
+      }
+      interval            = 5 # интервал между проверками в секундах (должен быть больше, чем timeout хотя бы на 1 сек)
+      timeout             = 2 # время ожидания ответа от цели
+      unhealthy_threshold = 2 # количество неудачных healthcheck запросов для установки статуса UNHEALTHY для цели
+      healthy_threshold   = 2 # количество удачных healthcheck запросов для установки статуса HEALTHY для цели
+    }
+  }
+}

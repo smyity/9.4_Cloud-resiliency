@@ -1,0 +1,20 @@
+---
+- name: installer
+  gather_facts: false
+  hosts: target_group
+  vars:
+    ansible_ssh_user: osho
+  become: yes
+
+  tasks:
+    - name: tast ping
+      ping:
+
+    - name: Update cache
+      apt:
+        update_cache: yes
+
+    - name: install nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present

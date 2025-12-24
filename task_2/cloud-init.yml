@@ -1,0 +1,17 @@
+#cloud-config
+users:
+  - name: osho
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCng7JNHRuQCrIY4sPVlVHRb+jaAHdRnx/ZPT9FYgxTd3MbECxqNTYldRGeaWAn/fzf6ixIv5A8VfB1kM6yxbmkWE6DM9GKsk2QMe/ikaTR06OEJEwfPyKf7pKTXRIm2VG0+Y5lzu3RfapAzsLkxS3tAMT1dbnfQW2IxzrybmPApe3vdDwHoAoThQ6yp3M1/cO3VADv3znTaLs/lLwGanTjAf22PetJm0lZwA/e6hho9yHanAAzYQn1gzzaXA5k7jaIU88pXwSY0jGlrbs/dk4dbMEJ5KpfxNEYq3/KCRfe02BOLj5EEigHxZ2EsHizsoiKwJM8ULFXQFvGvQ9FDqVV
+
+package_update: true
+
+packages:
+  - nginx
+
+runcmd:
+  - [ sh, -c, "echo $(hostname | cut -d '.' -f 1 ) > /var/www/html/index.html" ]
+  - [ systemctl, reload, nginx ]
